@@ -1,38 +1,7 @@
-/* =====================================================
-   EA PLAN
-   SUPABASE AUTH + PROFILE
-===================================================== */
+const A='/public/assets/';
+const app=document.querySelector('#app');
 
-const A = '/public/assets/';
-
-const SUPABASE_URL =
-  'https://tcmhqeuwiofzfmrikowh.supabase.co';
-
-const SUPABASE_PUBLISHABLE_KEY =
-  'sb_publishable_Tp5NB8fPzFCzjfGCKoeScQ_nhMkcYFO';
-
-const supabase =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY,
-    {
-      auth:{
-        autoRefreshToken:true,
-        persistSession:true,
-        detectSessionInUrl:true
-      }
-    }
-  );
-
-const app =
-  document.querySelector('#app');
-
-
-/* =====================================================
-   NAVIGATION
-===================================================== */
-
-const nav = [
+const nav=[
   ['home','⌂','Beranda'],
   ['planning','☷','Planning'],
   ['goals','◎','Goals'],
@@ -42,30 +11,23 @@ const nav = [
   ['journey','↗','Journey']
 ];
 
-
-/* =====================================================
-   STATE
-===================================================== */
-
-let state = {
-  user:null,
-  profile:null,
+let state={
+  user:JSON.parse(localStorage.getItem('ea_user')||'null'),
   selected:[],
   onStep:1,
   active:'home'
 };
 
 
-/* =====================================================
-   GLOBAL BACKGROUND
-===================================================== */
+/* =========================
+   BACKGROUND STYLE
+========================= */
 
 (function injectBackgroundStyles(){
 
-  const style =
-    document.createElement('style');
+  const style=document.createElement('style');
 
-  style.textContent = `
+  style.textContent=`
 
     .ea-bg-page{
       position:relative;
@@ -98,40 +60,28 @@ let state = {
       position:fixed;
       inset:0;
       z-index:-1;
-
-      background:
-        rgba(0,0,0,.12);
-
+      background:rgba(0,0,0,.12);
       pointer-events:none;
     }
 
     .ea-bg-page .authBox,
     .ea-bg-page .onboardBox{
-      background:
-        rgba(20,16,12,.72);
-
+      background:rgba(20,16,12,.72);
       backdrop-filter:blur(5px);
       -webkit-backdrop-filter:blur(5px);
-
-      border:
-        1px solid
-        rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.10);
     }
 
     .ea-bg-page .appShell{
-      background:
-        transparent !important;
+      background:transparent !important;
     }
 
     .ea-bg-page .main{
-      background:
-        transparent !important;
+      background:transparent !important;
     }
 
     .ea-bg-page .card{
-      background:
-        rgba(20,16,12,.70);
-
+      background:rgba(20,16,12,.70);
       backdrop-filter:blur(5px);
       -webkit-backdrop-filter:blur(5px);
     }
@@ -139,43 +89,16 @@ let state = {
     .ea-bg-page .side,
     .ea-bg-page .top,
     .ea-bg-page .mobileNav{
-      background:
-        rgba(15,12,10,.76);
-
+      background:rgba(15,12,10,.76);
       backdrop-filter:blur(8px);
       -webkit-backdrop-filter:blur(8px);
     }
 
     .authVisual{
-      background-image:
-        url("${A}splash.jpg") !important;
-
+      background-image:url("${A}splash.jpg") !important;
       background-size:cover !important;
       background-position:center !important;
       background-repeat:no-repeat !important;
-    }
-
-    .authMessage{
-      margin-top:16px;
-      padding:12px 14px;
-      border-radius:12px;
-      background:rgba(205,164,107,.10);
-      border:1px solid rgba(205,164,107,.25);
-      color:#ead8bc;
-      font-size:13px;
-      line-height:1.5;
-    }
-
-    .loadingScreen{
-      position:fixed;
-      inset:0;
-      background:#090806;
-      color:#ead8bc;
-      display:grid;
-      place-items:center;
-      z-index:10000;
-      font-size:12px;
-      letter-spacing:3px;
     }
 
   `;
@@ -185,94 +108,13 @@ let state = {
 })();
 
 
-/* =====================================================
-   LOAD SESSION
-===================================================== */
+/* =========================
+   SPLASH / WELCOME AWAL
+========================= */
 
-async function loadSession(){
+function splash(){
 
-  try{
-
-    const {
-      data,
-      error
-    } =
-      await supabase.auth.getSession();
-
-    if(error){
-      console.error(error);
-      state.user = null;
-      state.profile = null;
-      return;
-    }
-
-    state.user =
-      data?.session?.user || null;
-
-    if(state.user){
-
-      await loadProfile(
-        state.user.id
-      );
-
-    }
-
-  }catch(error){
-
-    console.error(
-      'Session error:',
-      error
-    );
-
-    state.user = null;
-    state.profile = null;
-
-  }
-
-}
-
-
-/* =====================================================
-   LOAD PROFILE
-===================================================== */
-
-async function loadProfile(userId){
-
-  const {
-    data,
-    error
-  } =
-    await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id',userId)
-      .maybeSingle();
-
-  if(error){
-
-    console.error(
-      'Profile error:',
-      error
-    );
-
-    state.profile = null;
-
-    return;
-
-  }
-
-  state.profile = data || null;
-
-}
-
-
-/* =====================================================
-   SPLASH
-===================================================== */
-
-async function splash(){
-
-  app.innerHTML = `
+  app.innerHTML=`
 
     <div class="splash">
 
@@ -300,27 +142,36 @@ async function splash(){
 
   `;
 
-  await loadSession();
+
+  /*
+    SPLASH TAMPIL SELAMA 3 DETIK
+  */
 
   setTimeout(()=>{
 
-    const splashScreen =
+    const splashScreen=
       document.querySelector('.splash');
 
     if(splashScreen){
 
+      /*
+        MULAI FADE OUT
+      */
+
       splashScreen.classList.add('hide');
+
+
+      /*
+        TUNGGU TRANSITION SELESAI
+        BARU PINDAH KE HALAMAN SELANJUTNYA
+      */
 
       setTimeout(()=>{
 
         if(state.user){
-
           dashboard();
-
         }else{
-
           welcome();
-
         }
 
       },700);
@@ -328,13 +179,9 @@ async function splash(){
     }else{
 
       if(state.user){
-
         dashboard();
-
       }else{
-
         welcome();
-
       }
 
     }
@@ -344,13 +191,13 @@ async function splash(){
 }
 
 
-/* =====================================================
+/* =========================
    WELCOME
-===================================================== */
+========================= */
 
 function welcome(){
 
-  app.innerHTML = `
+  app.innerHTML=`
 
     <div class="authShell">
 
@@ -438,42 +285,31 @@ function welcome(){
     </div>
 
   `;
-
 }
 
 
-/* =====================================================
-   REGISTER
-===================================================== */
+/* =========================
+   REGISTER / LOGIN
+========================= */
 
 function register(){
-
   auth('register');
-
 }
-
-
-/* =====================================================
-   LOGIN
-===================================================== */
 
 function login(){
-
   auth('login');
-
 }
 
 
-/* =====================================================
+/* =========================
    AUTH PAGE
-===================================================== */
+========================= */
 
 function auth(mode){
 
-  const reg =
-    mode === 'register';
+  const reg=mode==='register';
 
-  app.innerHTML = `
+  app.innerHTML=`
 
     <div
       class="authPanel ea-bg-page"
@@ -493,53 +329,45 @@ function auth(mode){
         </div>
 
         <h2>
-
           ${
             reg
-              ? 'Buat akun.'
-              : 'Selamat datang kembali.'
+            ?'Buat akun.'
+            :'Selamat datang kembali.'
           }
-
         </h2>
 
         <p class="sub">
-
           ${
             reg
-              ? 'Buat ruang perjalanan pribadimu.'
-              : 'Masuk untuk melanjutkan perjalananmu.'
+            ?'Buat ruang perjalanan pribadimu.'
+            :'Masuk untuk melanjutkan perjalananmu.'
           }
-
         </p>
 
 
         <form
           class="form"
-          onsubmit="
-            submitAuth(event,'${mode}')
-          "
+          onsubmit="submitAuth(event,'${mode}')"
         >
 
           ${
             reg
-              ? `
+            ?`
+              <input
+                class="input"
+                id="name"
+                placeholder="Nama"
+                required
+              >
 
-                <input
-                  class="input"
-                  id="name"
-                  placeholder="Nama"
-                  required
-                >
-
-                <input
-                  class="input"
-                  id="username"
-                  placeholder="Username"
-                  required
-                >
-
-              `
-              : ''
+              <input
+                class="input"
+                id="username"
+                placeholder="Username"
+                required
+              >
+            `
+            :''
           }
 
 
@@ -548,7 +376,6 @@ function auth(mode){
             id="email"
             type="email"
             placeholder="Email"
-            autocomplete="email"
             required
           >
 
@@ -559,7 +386,6 @@ function auth(mode){
             type="password"
             placeholder="Password"
             minlength="6"
-            autocomplete="${reg ? 'new-password' : 'current-password'}"
             required
           >
 
@@ -572,9 +398,8 @@ function auth(mode){
 
           <button
             class="goldBtn"
-            id="authSubmit"
           >
-            ${reg ? 'Buat Akun' : 'Masuk'}
+            ${reg?'Buat Akun':'Masuk'}
           </button>
 
         </form>
@@ -609,318 +434,59 @@ function auth(mode){
 }
 
 
-/* =====================================================
+/* =========================
    SUBMIT AUTH
-===================================================== */
+========================= */
 
-async function submitAuth(
-  e,
-  mode
-){
+function submitAuth(e,mode){
 
   e.preventDefault();
 
-  const button =
-    document.querySelector('#authSubmit');
-
-  const errorBox =
-    document.querySelector('#err');
-
-  if(button){
-
-    button.disabled = true;
-    button.textContent =
-      mode === 'register'
-        ? 'Membuat akun...'
-        : 'Memeriksa...';
-
-  }
-
-  if(errorBox){
-
-    errorBox.textContent = '';
-
-  }
-
-
-  const email =
-    document
-      .querySelector('#email')
-      ?.value
-      ?.trim()
-      ?.toLowerCase();
-
-  const password =
-    document
-      .querySelector('#password')
-      ?.value;
-
-
-  try{
-
-    /* ==============================================
-       REGISTER
-    ============================================== */
-
-    if(mode === 'register'){
-
-      const name =
-        document
-          .querySelector('#name')
-          ?.value
-          ?.trim();
-
-      const username =
-        document
-          .querySelector('#username')
-          ?.value
-          ?.trim()
-          ?.toLowerCase();
-
-
-      const {
-        data,
-        error
-      } =
-        await supabase.auth.signUp({
-
-          email,
-          password,
-
-          options:{
-            data:{
-              name,
-              username
-            }
-          }
-
-        });
-
-
-      if(error){
-
-        throw error;
-
-      }
-
-
-      /*
-        Jika email confirmation aktif,
-        session biasanya belum tersedia.
-      */
-
-      if(!data.session){
-
-        app.innerHTML = `
-
-          <div
-            class="authPanel ea-bg-page"
-            style="min-height:100vh;color:white"
-          >
-
-            <div class="authBox">
-
-              <img
-                class="miniLogo"
-                src="${A}logoea.png"
-                alt="EA PLAN"
-              >
-
-              <div class="brandText">
-                EA PLAN
-              </div>
-
-              <h2>
-                Periksa emailmu.
-              </h2>
-
-              <p class="sub">
-                Akun EA PLAN sudah dibuat.
-                Silakan buka email konfirmasi
-                dari Supabase, lalu kembali ke
-                EA PLAN untuk masuk.
-              </p>
-
-              <div class="authMessage">
-
-                Email:
-                <strong>
-                  ${escapeHtml(email)}
-                </strong>
-
-              </div>
-
-              <div class="form">
-
-                <button
-                  class="goldBtn"
-                  onclick="login()"
-                >
-                  Saya sudah konfirmasi
-                </button>
-
-                <button
-                  class="ghostBtn"
-                  onclick="welcome()"
-                >
-                  Kembali
-                </button>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        `;
-
-        return;
-
-      }
-
-
-      state.user =
-        data.user;
-
-      await loadProfile(
-        data.user.id
-      );
-
-      onboarding();
-
-      return;
-
-    }
-
-
-    /* ==============================================
-       LOGIN
-    ============================================== */
-
-    const {
-      data,
-      error
-    } =
-      await supabase.auth.signInWithPassword({
-
-        email,
-        password
-
-      });
-
-
-    if(error){
-
-      throw error;
-
-    }
-
-
-    state.user =
-      data.user;
-
-    await loadProfile(
-      data.user.id
+  if(mode==='register'){
+
+    state.user={
+      name:name.value,
+      username:username.value,
+      email:email.value
+    };
+
+    localStorage.setItem(
+      'ea_user',
+      JSON.stringify(state.user)
     );
 
+    onboarding();
+
+  }else{
+
+    let u=JSON.parse(
+      localStorage.getItem('ea_user')||'null'
+    );
+
+    if(!u || u.email!==email.value){
+
+      err.textContent=
+        'Demo: akun belum ditemukan. Silakan buat akun terlebih dahulu.';
+
+      return;
+    }
+
+    state.user=u;
 
     dashboard();
 
-
-  }catch(error){
-
-    console.error(
-      'Auth error:',
-      error
-    );
-
-    if(errorBox){
-
-      errorBox.textContent =
-        readableAuthError(
-          error
-        );
-
-    }
-
-    if(button){
-
-      button.disabled = false;
-
-      button.textContent =
-        mode === 'register'
-          ? 'Buat Akun'
-          : 'Masuk';
-
-    }
-
   }
 
 }
 
 
-/* =====================================================
-   AUTH ERROR
-===================================================== */
-
-function readableAuthError(error){
-
-  const message =
-    error?.message || '';
-
-  if(
-    message
-      .toLowerCase()
-      .includes('invalid login credentials')
-  ){
-
-    return 'Email atau password salah.';
-
-  }
-
-  if(
-    message
-      .toLowerCase()
-      .includes('email not confirmed')
-  ){
-
-    return 'Email belum dikonfirmasi. Silakan cek emailmu terlebih dahulu.';
-
-  }
-
-  if(
-    message
-      .toLowerCase()
-      .includes('password')
-  ){
-
-    return message;
-
-  }
-
-  if(
-    message
-      .toLowerCase()
-      .includes('already registered')
-  ){
-
-    return 'Email tersebut sudah terdaftar. Silakan masuk.';
-
-  }
-
-  return message ||
-    'Terjadi kesalahan. Silakan coba lagi.';
-
-}
-
-
-/* =====================================================
+/* =========================
    FORGOT PASSWORD
-===================================================== */
+========================= */
 
-async function forgot(){
+function forgot(){
 
-  app.innerHTML = `
+  app.innerHTML=`
 
     <div
       class="authPanel ea-bg-page"
@@ -944,27 +510,26 @@ async function forgot(){
         </h2>
 
         <p class="sub">
-          Masukkan email untuk menerima
-          instruksi pemulihan akun.
+          Masukkan email untuk proses pemulihan akun.
+          Email service akan disambungkan pada fase backend.
         </p>
+
 
         <form
           class="form"
-          onsubmit="sendReset(event)"
+          onsubmit="
+            event.preventDefault();
+            alert('Fitur email reset akan aktif setelah authentication backend disambungkan.');
+            login()
+          "
         >
 
           <input
             class="input"
-            id="resetEmail"
             type="email"
             placeholder="Email"
             required
           >
-
-          <div
-            id="resetErr"
-            class="error"
-          ></div>
 
           <button
             class="goldBtn"
@@ -974,17 +539,6 @@ async function forgot(){
 
         </form>
 
-        <div class="switch">
-
-          <button
-            class="link"
-            onclick="login()"
-          >
-            ← Kembali ke login
-          </button>
-
-        </div>
-
       </div>
 
     </div>
@@ -994,117 +548,22 @@ async function forgot(){
 }
 
 
-/* =====================================================
-   SEND RESET
-===================================================== */
-
-async function sendReset(e){
-
-  e.preventDefault();
-
-  const email =
-    document
-      .querySelector('#resetEmail')
-      ?.value
-      ?.trim()
-      ?.toLowerCase();
-
-  const resetErr =
-    document.querySelector('#resetErr');
-
-
-  const {
-    error
-  } =
-    await supabase.auth
-      .resetPasswordForEmail(
-        email,
-        {
-          redirectTo:
-            window.location.origin
-        }
-      );
-
-
-  if(error){
-
-    if(resetErr){
-
-      resetErr.textContent =
-        error.message;
-
-    }
-
-    return;
-
-  }
-
-
-  app.innerHTML = `
-
-    <div
-      class="authPanel ea-bg-page"
-      style="min-height:100vh;color:white"
-    >
-
-      <div class="authBox">
-
-        <img
-          class="miniLogo"
-          src="${A}logoea.png"
-          alt="EA PLAN"
-        >
-
-        <div class="brandText">
-          EA PLAN
-        </div>
-
-        <h2>
-          Instruksi dikirim.
-        </h2>
-
-        <p class="sub">
-          Jika email tersebut terdaftar,
-          Supabase akan mengirim instruksi
-          pemulihan password.
-        </p>
-
-        <button
-          class="goldBtn"
-          onclick="login()"
-        >
-          Kembali ke Login
-        </button>
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =====================================================
+/* =========================
    ONBOARDING
-===================================================== */
+========================= */
 
 function onboarding(){
 
-  state.onStep = 1;
+  state.onStep=1;
 
   renderOnboarding();
 
 }
 
 
-/* =====================================================
-   RENDER ONBOARDING
-===================================================== */
-
 function renderOnboarding(){
 
-  const steps = [
+  let steps=[
     'Fokus',
     'Tentangmu',
     'Target'
@@ -1113,9 +572,9 @@ function renderOnboarding(){
   let body;
 
 
-  if(state.onStep === 1){
+  if(state.onStep===1){
 
-    body = `
+    body=`
 
       <div class="kicker">
         LANGKAH 1
@@ -1129,6 +588,7 @@ function renderOnboarding(){
         Pilih yang paling dekat dengan perjalananmu.
         Kamu bisa memilih lebih dari satu.
       </p>
+
 
       <div class="choices">
 
@@ -1148,8 +608,8 @@ function renderOnboarding(){
                 choice
                 ${
                   state.selected.includes(x)
-                    ? 'selected'
-                    : ''
+                  ?'selected'
+                  :''
                 }
               "
               onclick="pick('${x}')"
@@ -1157,8 +617,8 @@ function renderOnboarding(){
 
               ${
                 state.selected.includes(x)
-                  ? '✓ '
-                  : '○ '
+                ?'✓ '
+                :'○ '
               }
 
               ${x}
@@ -1173,12 +633,9 @@ function renderOnboarding(){
 
     `;
 
-  }
+  }else if(state.onStep===2){
 
-
-  else if(state.onStep === 2){
-
-    body = `
+    body=`
 
       <div class="kicker">
         LANGKAH 2
@@ -1193,6 +650,7 @@ function renderOnboarding(){
         Profil dapat kamu ubah nanti.
       </p>
 
+
       <textarea
         class="input"
         id="bio"
@@ -1202,12 +660,9 @@ function renderOnboarding(){
 
     `;
 
-  }
+  }else{
 
-
-  else{
-
-    body = `
+    body=`
 
       <div class="kicker">
         LANGKAH 3
@@ -1222,6 +677,7 @@ function renderOnboarding(){
         yang benar-benar berarti.
       </p>
 
+
       <input
         class="input"
         id="firstGoal"
@@ -1233,7 +689,7 @@ function renderOnboarding(){
   }
 
 
-  app.innerHTML = `
+  app.innerHTML=`
 
     <div class="onboard ea-bg-page">
 
@@ -1243,25 +699,27 @@ function renderOnboarding(){
           EA PLAN
         </div>
 
+
         <div class="steps">
 
           ${
             steps
-              .map((_,i)=>`
+            .map((_,i)=>`
 
-                <i
-                  class="${
-                    i + 1 <= state.onStep
-                      ? 'active'
-                      : ''
-                  }"
-                ></i>
+              <i
+                class="${
+                  i+1<=state.onStep
+                  ?'active'
+                  :''
+                }"
+              ></i>
 
-              `)
-              .join('')
+            `)
+            .join('')
           }
 
         </div>
+
 
         ${body}
 
@@ -1269,21 +727,19 @@ function renderOnboarding(){
         <div class="actions">
 
           ${
-            state.onStep > 1
-              ? `
-
-                <button
-                  class="ghostBtn"
-                  onclick="
-                    state.onStep--;
-                    renderOnboarding()
-                  "
-                >
-                  Kembali
-                </button>
-
-              `
-              : ''
+            state.onStep>1
+            ?`
+              <button
+                class="ghostBtn"
+                onclick="
+                  state.onStep--;
+                  renderOnboarding()
+                "
+              >
+                Kembali
+              </button>
+            `
+            :''
           }
 
 
@@ -1293,9 +749,9 @@ function renderOnboarding(){
           >
 
             ${
-              state.onStep < 3
-                ? 'Lanjut'
-                : 'Masuk ke EA PLAN'
+              state.onStep<3
+              ?'Lanjut'
+              :'Masuk ke EA PLAN'
             }
 
           </button>
@@ -1311,97 +767,77 @@ function renderOnboarding(){
 }
 
 
-/* =====================================================
-   SELECT ONBOARDING
-===================================================== */
+/* =========================
+   PICK ONBOARDING
+========================= */
 
 function pick(x){
 
-  state.selected =
+  state.selected=
     state.selected.includes(x)
-
-      ? state.selected.filter(
-          y => y !== x
-        )
-
-      : [
-          ...state.selected,
-          x
-        ];
+    ?state.selected.filter(y=>y!==x)
+    :[...state.selected,x];
 
   renderOnboarding();
 
 }
 
 
-/* =====================================================
+/* =========================
    NEXT ONBOARDING
-===================================================== */
+========================= */
 
-async function nextOnboard(){
+function nextOnboard(){
 
-  if(state.onStep < 3){
+  if(state.onStep<3){
 
     state.onStep++;
 
     renderOnboarding();
 
-    return;
+  }else{
+
+    dashboard();
 
   }
-
-  dashboard();
 
 }
 
 
-/* =====================================================
+/* =========================
    DASHBOARD
-===================================================== */
+========================= */
 
 function dashboard(){
 
-  state.active = 'home';
+  state.active='home';
 
   renderApp();
 
 }
 
 
-/* =====================================================
+/* =========================
    RENDER APP
-===================================================== */
+========================= */
 
 function renderApp(){
 
-  const n =
-    nav.find(
-      x => x[0] === state.active
-    ) || nav[0];
+  let n=
+    nav.find(x=>x[0]===state.active)
+    ||nav[0];
+
+  let content=
+    state.active==='home'
+    ?home()
+    :modulePage(n[1],n[2]);
 
 
-  const content =
-    state.active === 'home'
-      ? home()
-      : modulePage(
-          n[1],
-          n[2]
-        );
-
-
-  const displayName =
-    state.profile?.name ||
-    state.user?.user_metadata?.name ||
-    state.user?.email?.split('@')[0] ||
-    'KREATOR';
-
-
-  app.innerHTML = `
+  app.innerHTML=`
 
     <div class="ea-bg-page">
 
       <div class="appShell">
-
 
         <aside class="side">
 
@@ -1423,48 +859,33 @@ function renderApp(){
 
             ${
               nav
-                .map(x=>`
+              .map(x=>`
 
-                  <button
-                    class="${
-                      x[0] === state.active
-                        ? 'active'
-                        : ''
-                    }"
-                    onclick="go('${x[0]}')"
-                  >
+                <button
+                  class="${
+                    x[0]===state.active
+                    ?'active'
+                    :''
+                  }"
+                  onclick="go('${x[0]}')"
+                >
 
-                    ${x[1]}
+                  ${x[1]}
+                  &nbsp;&nbsp;
+                  ${x[2]}
 
-                    &nbsp;&nbsp;
+                </button>
 
-                    ${x[2]}
-
-                  </button>
-
-                `)
-                .join('')
+              `)
+              .join('')
             }
 
           </nav>
-
-
-          <button
-            class="ghostBtn"
-            style="
-              width:100%;
-              margin-top:24px;
-            "
-            onclick="logout()"
-          >
-            Keluar
-          </button>
 
         </aside>
 
 
         <main class="main">
-
 
           <header class="top">
 
@@ -1481,15 +902,12 @@ function renderApp(){
             </div>
 
 
-            <div
-              class="avatar"
-              title="${escapeHtml(displayName)}"
-            >
+            <div class="avatar">
 
               ${
-                displayName
-                  .slice(0,2)
-                  .toUpperCase()
+                (state.user?.name||'EA')
+                .slice(0,2)
+                .toUpperCase()
               }
 
             </div>
@@ -1499,7 +917,6 @@ function renderApp(){
 
           ${content}
 
-
         </main>
 
 
@@ -1507,42 +924,29 @@ function renderApp(){
 
           ${
             nav
-              .slice(0,5)
-              .map(x=>`
+            .slice(0,5)
+            .map(x=>`
 
-                <button
-                  class="${
-                    x[0] === state.active
-                      ? 'active'
-                      : ''
-                  }"
-                  onclick="go('${x[0]}')"
-                >
+              <button
+                class="${
+                  x[0]===state.active
+                  ?'active'
+                  :''
+                }"
+                onclick="go('${x[0]}')"
+              >
 
-                  <b>
-                    ${x[1]}
-                  </b>
+                <b>
+                  ${x[1]}
+                </b>
 
-                  ${x[2]}
+                ${x[2]}
 
-                </button>
+              </button>
 
-              `)
-              .join('')
+            `)
+            .join('')
           }
-
-
-          <button
-            onclick="logout()"
-          >
-
-            <b>
-              ↪
-            </b>
-
-            Keluar
-
-          </button>
 
         </nav>
 
@@ -1555,32 +959,21 @@ function renderApp(){
 }
 
 
-/* =====================================================
+/* =========================
    HOME
-===================================================== */
+========================= */
 
 function home(){
-
-  const name =
-    state.profile?.name ||
-    state.user?.user_metadata?.name ||
-    'KREATOR';
-
 
   return `
 
     <div class="grid">
 
-
       <article class="card wide">
 
         <div class="kicker">
-
           SELAMAT DATANG,
-          ${escapeHtml(
-            name.toUpperCase()
-          )}
-
+          ${(state.user?.name||'KREATOR').toUpperCase()}
         </div>
 
 
@@ -1590,18 +983,14 @@ function home(){
             margin:12px 0
           "
         >
-
           Rancang hidupmu.<br>
           Rawat perjalananmu.
-
         </h1>
 
 
         <p class="muted">
-
           “Setiap karya besar berawal dari satu
           langkah kecil yang terencana.”
-
         </p>
 
       </article>
@@ -1687,44 +1076,22 @@ function home(){
           Langkah hari ini
         </h3>
 
+
         <div class="item">
           ○ Tentukan satu prioritas utama
         </div>
 
+
         <div class="item">
           ○ Kerjakan tanpa menunggu semuanya sempurna
         </div>
+
 
         <div class="item">
           ○ Tulis satu hal yang kamu pelajari
         </div>
 
       </article>
-
-
-      <article class="card full">
-
-        <div class="kicker">
-          AKUN
-        </div>
-
-        <p class="muted">
-
-          ${escapeHtml(
-            state.user?.email || ''
-          )}
-
-        </p>
-
-        <button
-          class="ghostBtn"
-          onclick="logout()"
-        >
-          Keluar dari EA PLAN
-        </button>
-
-      </article>
-
 
     </div>
 
@@ -1733,9 +1100,9 @@ function home(){
 }
 
 
-/* =====================================================
+/* =========================
    MODULE PAGE
-===================================================== */
+========================= */
 
 function modulePage(a,b){
 
@@ -1749,6 +1116,7 @@ function modulePage(a,b){
           EA PLAN
         </div>
 
+
         <h1
           style="
             font:500 40px Georgia,serif
@@ -1757,25 +1125,21 @@ function modulePage(a,b){
           ${b}
         </h1>
 
+
         <p class="muted">
 
           ${
-            a === 'Planning'
-              ? 'Susun langkah dengan sederhana.'
-
-              : a === 'Goals'
-                ? 'Ubah mimpi menjadi target yang terukur.'
-
-                : a === 'Journal'
-                  ? 'Tulis apa yang terjadi, dirasakan, dan dipelajari.'
-
-                  : a === 'Ideas'
-                    ? 'Tangkap ide sebelum hilang.'
-
-                    : a === 'Projects'
-                      ? 'Pecah karya besar menjadi tahapan kecil.'
-
-                      : 'Lihat milestone dan pertumbuhanmu dari waktu ke waktu.'
+            a==='Planning'
+            ?'Susun langkah dengan sederhana.'
+            :a==='Goals'
+            ?'Ubah mimpi menjadi target yang terukur.'
+            :a==='Journal'
+            ?'Tulis apa yang terjadi, dirasakan, dan dipelajari.'
+            :a==='Ideas'
+            ?'Tangkap ide sebelum hilang.'
+            :a==='Projects'
+            ?'Pecah karya besar menjadi tahapan kecil.'
+            :'Lihat milestone dan pertumbuhanmu dari waktu ke waktu.'
           }
 
         </p>
@@ -1784,10 +1148,7 @@ function modulePage(a,b){
         <div class="item">
 
           Modul ini sudah memiliki tempat
-          di arsitektur EA PLAN.
-
-          <br><br>
-
+          di arsitektur production EA PLAN.
           CRUD + cloud database akan diaktifkan
           pada fase berikutnya.
 
@@ -1802,123 +1163,21 @@ function modulePage(a,b){
 }
 
 
-/* =====================================================
+/* =========================
    NAVIGATION
-===================================================== */
+========================= */
 
 function go(id){
 
-  state.active = id;
+  state.active=id;
 
   renderApp();
 
 }
 
 
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-async function logout(){
-
-  const {
-    error
-  } =
-    await supabase.auth.signOut();
-
-  if(error){
-
-    console.error(
-      'Logout error:',
-      error
-    );
-
-    return;
-
-  }
-
-  state.user = null;
-  state.profile = null;
-  state.selected = [];
-
-  welcome();
-
-}
-
-
-/* =====================================================
-   AUTH STATE LISTENER
-===================================================== */
-
-supabase.auth.onAuthStateChange(
-  async (event,session)=>{
-
-    console.log(
-      'Auth event:',
-      event
-    );
-
-    if(session?.user){
-
-      state.user =
-        session.user;
-
-      /*
-        Jangan langsung mengganti
-        halaman ketika user sedang
-        berada di onboarding.
-      */
-
-      if(
-        event === 'SIGNED_IN' &&
-        !state.profile
-      ){
-
-        await loadProfile(
-          session.user.id
-        );
-
-      }
-
-    }
-
-  }
-);
-
-
-/* =====================================================
-   HTML ESCAPE
-===================================================== */
-
-function escapeHtml(value){
-
-  return String(value ?? '')
-    .replace(
-      /&/g,
-      '&amp;'
-    )
-    .replace(
-      /</g,
-      '&lt;'
-    )
-    .replace(
-      />/g,
-      '&gt;'
-    )
-    .replace(
-      /"/g,
-      '&quot;'
-    )
-    .replace(
-      /'/g,
-      '&#039;'
-    );
-
-}
-
-
-/* =====================================================
-   START
-===================================================== */
+/* =========================
+   START APP
+========================= */
 
 splash();
