@@ -1,4 +1,4 @@
-const A='/assets/';const app=document.querySelector('#app');
+const A='/public/assets/';const app=document.querySelector('#app');
 const nav=[['home','⌂','Beranda'],['planning','☷','Planning'],['goals','◎','Goals'],['journal','✎','Journal'],['ideas','✦','Ideas'],['projects','□','Projects'],['journey','↗','Journey']];
 let state={user:JSON.parse(localStorage.getItem('ea_user')||'null'),selected:[],onStep:1,active:'home'};
 function splash(){app.innerHTML=`<div class="splash"><img class="bg" src="${A}splash.jpg"><div class="content"><img class="logo" src="${A}logo.png"><div class="word">EA PLAN</div><div class="tag">YOUR PERSONALIZED PLANNING JOURNEY</div></div></div>`;setTimeout(()=>{if(state.user)dashboard();else welcome()},3000)}
