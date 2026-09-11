@@ -5,7 +5,7 @@
 
   <meta
     name="viewport"
-    content="width=device-width,initial-scale=1,viewport-fit=cover"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
   >
 
   <meta
@@ -33,6 +33,7 @@
     content="black"
   >
 
+  <!-- App Icon -->
   <link
     rel="icon"
     type="image/png"
@@ -45,11 +46,13 @@
     href="/assets/icon-192.png"
   >
 
+  <!-- PWA Manifest -->
   <link
     rel="manifest"
     href="/manifest.json"
   >
 
+  <!-- EA PLAN CSS -->
   <link
     rel="stylesheet"
     href="/src/styles/app.css"
@@ -60,15 +63,24 @@
 
 <body>
 
+  <!-- Main App -->
   <div id="app"></div>
 
-  <!-- Supabase JS -->
+
+  <!-- =========================================
+       SUPABASE JAVASCRIPT
+       ========================================= -->
   <script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
   ></script>
 
-  <!-- EA PLAN -->
-  <script src="/src/app.js"></script>
+
+  <!-- =========================================
+       EA PLAN APPLICATION
+       ========================================= -->
+  <script
+    src="/src/app.js"
+  ></script>
 
 </body>
 </html>
