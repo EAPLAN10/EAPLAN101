@@ -146,7 +146,7 @@ function splash(){
 
   `;
 
-  setTimeout((1.0s)=>{
+  setTimeout(()=>{
 
     if(state.user)
       dashboard();
