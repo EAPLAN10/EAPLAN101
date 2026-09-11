@@ -133,7 +133,7 @@ function splash(){
         >
 
         <div class="word">
-          EA PLAN
+          
         </div>
 
         <div class="tag">
