@@ -109,7 +109,7 @@ let state={
 
 
 /* =========================
-   SPLASH SCREEN
+   SPLASH / WELCOME AWAL
 ========================= */
 
 function splash(){
@@ -144,14 +144,39 @@ function splash(){
 
 
   /*
-    SPLASH TAMPIL 3 DETIK
+    SPLASH TAMPIL SELAMA 3 DETIK
   */
 
   setTimeout(()=>{
 
-    const splashScreen=document.querySelector('.splash');
+    const splashScreen=
+      document.querySelector('.splash');
 
-    if(!splashScreen){
+    if(splashScreen){
+
+      /*
+        MULAI FADE OUT
+      */
+
+      splashScreen.classList.add('hide');
+
+
+      /*
+        TUNGGU TRANSITION SELESAI
+        BARU PINDAH KE HALAMAN SELANJUTNYA
+      */
+
+      setTimeout(()=>{
+
+        if(state.user){
+          dashboard();
+        }else{
+          welcome();
+        }
+
+      },700);
+
+    }else{
 
       if(state.user){
         dashboard();
@@ -159,32 +184,7 @@ function splash(){
         welcome();
       }
 
-      return;
     }
-
-
-    /*
-      SETELAH 3 DETIK:
-      MULAI TRANSITION FADE OUT
-    */
-
-    splashScreen.classList.add('hide');
-
-
-    /*
-      TUNGGU TRANSITION SELESAI
-      BARU PINDAH HALAMAN
-    */
-
-    setTimeout(()=>{
-
-      if(state.user){
-        dashboard();
-      }else{
-        welcome();
-      }
-
-    },700);
 
   },3000);
 
@@ -301,6 +301,10 @@ function login(){
 }
 
 
+/* =========================
+   AUTH PAGE
+========================= */
+
 function auth(mode){
 
   const reg=mode==='register';
@@ -325,14 +329,16 @@ function auth(mode){
         </div>
 
         <h2>
-          ${reg
+          ${
+            reg
             ?'Buat akun.'
             :'Selamat datang kembali.'
           }
         </h2>
 
         <p class="sub">
-          ${reg
+          ${
+            reg
             ?'Buat ruang perjalanan pribadimu.'
             :'Masuk untuk melanjutkan perjalananmu.'
           }
@@ -424,11 +430,12 @@ function auth(mode){
     </div>
 
   `;
+
 }
 
 
 /* =========================
-   AUTH SUBMIT
+   SUBMIT AUTH
 ========================= */
 
 function submitAuth(e,mode){
@@ -507,6 +514,7 @@ function forgot(){
           Email service akan disambungkan pada fase backend.
         </p>
 
+
         <form
           class="form"
           onsubmit="
@@ -523,7 +531,9 @@ function forgot(){
             required
           >
 
-          <button class="goldBtn">
+          <button
+            class="goldBtn"
+          >
             Kirim instruksi
           </button>
 
@@ -534,6 +544,7 @@ function forgot(){
     </div>
 
   `;
+
 }
 
 
@@ -593,11 +604,14 @@ function renderOnboarding(){
           .map(x=>`
 
             <button
-              class="choice ${
-                state.selected.includes(x)
-                ?'selected'
-                :''
-              }"
+              class="
+                choice
+                ${
+                  state.selected.includes(x)
+                  ?'selected'
+                  :''
+                }
+              "
               onclick="pick('${x}')"
             >
 
@@ -636,6 +650,7 @@ function renderOnboarding(){
         Profil dapat kamu ubah nanti.
       </p>
 
+
       <textarea
         class="input"
         id="bio"
@@ -662,6 +677,7 @@ function renderOnboarding(){
         yang benar-benar berarti.
       </p>
 
+
       <input
         class="input"
         id="firstGoal"
@@ -683,10 +699,12 @@ function renderOnboarding(){
           EA PLAN
         </div>
 
+
         <div class="steps">
 
           ${
-            steps.map((_,i)=>`
+            steps
+            .map((_,i)=>`
 
               <i
                 class="${
@@ -696,7 +714,8 @@ function renderOnboarding(){
                 }"
               ></i>
 
-            `).join('')
+            `)
+            .join('')
           }
 
         </div>
@@ -748,6 +767,10 @@ function renderOnboarding(){
 }
 
 
+/* =========================
+   PICK ONBOARDING
+========================= */
+
 function pick(x){
 
   state.selected=
@@ -759,6 +782,10 @@ function pick(x){
 
 }
 
+
+/* =========================
+   NEXT ONBOARDING
+========================= */
 
 function nextOnboard(){
 
@@ -789,6 +816,10 @@ function dashboard(){
 
 }
 
+
+/* =========================
+   RENDER APP
+========================= */
 
 function renderApp(){
 
@@ -827,7 +858,8 @@ function renderApp(){
           <nav class="nav">
 
             ${
-              nav.map(x=>`
+              nav
+              .map(x=>`
 
                 <button
                   class="${
@@ -844,7 +876,8 @@ function renderApp(){
 
                 </button>
 
-              `).join('')
+              `)
+              .join('')
             }
 
           </nav>
@@ -890,7 +923,9 @@ function renderApp(){
         <nav class="mobileNav">
 
           ${
-            nav.slice(0,5).map(x=>`
+            nav
+            .slice(0,5)
+            .map(x=>`
 
               <button
                 class="${
@@ -909,7 +944,8 @@ function renderApp(){
 
               </button>
 
-            `).join('')
+            `)
+            .join('')
           }
 
         </nav>
@@ -940,6 +976,7 @@ function home(){
           ${(state.user?.name||'KREATOR').toUpperCase()}
         </div>
 
+
         <h1
           style="
             font:500 42px Georgia,serif;
@@ -949,6 +986,7 @@ function home(){
           Rancang hidupmu.<br>
           Rawat perjalananmu.
         </h1>
+
 
         <p class="muted">
           “Setiap karya besar berawal dari satu
@@ -969,7 +1007,9 @@ function home(){
         </div>
 
         <div class="progress">
+
           <i style="width:0"></i>
+
         </div>
 
         <span class="muted">
@@ -1036,13 +1076,16 @@ function home(){
           Langkah hari ini
         </h3>
 
+
         <div class="item">
           ○ Tentukan satu prioritas utama
         </div>
 
+
         <div class="item">
           ○ Kerjakan tanpa menunggu semuanya sempurna
         </div>
+
 
         <div class="item">
           ○ Tulis satu hal yang kamu pelajari
@@ -1058,7 +1101,7 @@ function home(){
 
 
 /* =========================
-   MODULE
+   MODULE PAGE
 ========================= */
 
 function modulePage(a,b){
@@ -1073,6 +1116,7 @@ function modulePage(a,b){
           EA PLAN
         </div>
 
+
         <h1
           style="
             font:500 40px Georgia,serif
@@ -1080,6 +1124,7 @@ function modulePage(a,b){
         >
           ${b}
         </h1>
+
 
         <p class="muted">
 
@@ -1132,7 +1177,7 @@ function go(id){
 
 
 /* =========================
-   START
+   START APP
 ========================= */
 
 splash();
