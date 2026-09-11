@@ -153,7 +153,7 @@ function splash(){
     else
       welcome();
 
-  },3500);
+  },3000);
 
 }
 
