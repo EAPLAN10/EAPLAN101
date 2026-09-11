@@ -146,14 +146,14 @@ function splash(){
 
   `;
 
-  setTimeout(()=>{
+  setTimeout((1.0s)=>{
 
     if(state.user)
       dashboard();
     else
       welcome();
 
-  },3000);
+  },3500);
 
 }
 
